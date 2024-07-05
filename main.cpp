@@ -24,6 +24,10 @@
 #include <windowsx.h>
 
 #include "fonts.h"
+#include "images.h"
+#include "state.h"
+#include "texture.h"
+#include "versions.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -71,8 +75,8 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
 
 #endif
 
-    int width = 1140; // could declare them as "const int" if you like
-    int height = 680;
+    int width = 980;
+    int height = 650;
     const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
     // Create window with graphics context
@@ -139,12 +143,27 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     // IM_ASSERT(font != nullptr);
 
     // Our state
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 clear_color = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 
-    int my_image_width = 0;
-    int my_image_height = 0;
-    GLuint my_image_texture = 0;
-    // bool ret = LoadTextureFromFile(OPTIONSBG3, &my_image_texture, &my_image_width, &my_image_height);
+    int initial_release_width = 0;
+    int initial_release_height = 0;
+    GLuint initial_release_image_texture = 0;
+    LoadTextureFromFile(initial_release_screenshot, &initial_release_image_texture, &initial_release_width, &initial_release_height);
+
+    int pathfinder_image_width = 0;
+    int pathfinder_image_height = 0;
+    GLuint pathfinder_image_texture = 0;
+    LoadTextureFromFile(pathfinder_screenshot, &pathfinder_image_texture, &pathfinder_image_width, &pathfinder_image_height);
+
+    int foundations_image_width = 0;
+    int foundations_image_height = 0;
+    GLuint foundations_image_texture = 0;
+    LoadTextureFromFile(foundation_screenshot, &foundations_image_texture, &foundations_image_width, &foundations_image_height);
+
+    int atlas_rises_width = 0;
+    int atlas_rises_height = 0;
+    GLuint atlas_rises_image_texture = 0;
+    LoadTextureFromFile(atlas_rises_screenshot, &atlas_rises_image_texture, &atlas_rises_width, &atlas_rises_height);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -171,7 +190,6 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
         {
             ImGui::Begin("Retro NMS Installer", 0, flags);
-            ImGui::GetBackgroundDrawList()->AddImage((void *)(intptr_t)my_image_texture, ImVec2(0, 0), ImVec2(my_image_width, my_image_height));
 
             {
                 // Nav buttons
@@ -210,7 +228,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
             ImGui::PushFont(nms_font_big);
             const char *title_text = "No Man's Sky Retro";
             ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize(title_text).x) * 0.5);
-            ImGui::SetCursorPosY(100);
+            ImGui::SetCursorPosY(50);
             ImGui::Text(title_text); // Display some text (you can use a format strings too)
             ImGui::PopFont();
 
@@ -222,35 +240,16 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
             ImGui::PopFont();
 #endif
 
-            // switch (GetInstallerState())
-            // {
-            // case EInstallerState_Start:
-            //     DoStartState(nms_font_medium);
-            //     break;
-            // case EInstallerState_CheckShouldUseExistingInstall:
-            //     DoPromptInstallState(nms_font_medium, nms_font);
-            //     break;
-            // case EInstallerState_DownloadFractal:
-            //     DoDepotDownloader(nms_font_medium, nms_font);
-            //     break;
-            // case EInstallerState_DoDepotDownloadShit:
-            //     DoFractalDownload(nms_font_medium, nms_font);
-            //     break;
-            // case EInstallerState_HandleSteamCredentialsInput:
-            //     DoSteamCredsInput(nms_font_medium, nms_font);
-            //     break;
-            // case EInstallerState_DownloadReNMS:
-            //     DoDownloadReNMS(nms_font_medium, nms_font);
-            //     break;
-            // case EInstallerState_Finalise:
-            //     DoFinaliseInstall(nms_font_medium, nms_font);
-            //     break;
-            // case EInstallerState_Finished:
-            //     DoFinishInstall(nms_font_medium, nms_font);
-            //     break;
-            // default:
-            //     break;
-            // }
+            ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 50);
+
+            switch (InstallerState::Get()->CurrentState())
+            {
+            case EState_Picker:
+                VersionPicker_Frame(nms_font_medium, (ImTextureID)initial_release_image_texture, (ImTextureID)pathfinder_image_texture, (ImTextureID)foundations_image_texture, (ImTextureID)atlas_rises_image_texture, ImVec2(pathfinder_image_width, pathfinder_image_height));
+                break;
+            default:
+                break;
+            }
 
             ImGui::End();
         }

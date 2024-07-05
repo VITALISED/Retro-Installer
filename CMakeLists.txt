@@ -34,7 +34,11 @@ set(IMGUI_SOURCES
 )
 
 add_executable(
-    retro_installer WIN32 ${CMAKE_SOURCE_DIR}/main.cpp ${IMGUI_SOURCES}
+    retro_installer WIN32
+    ${CMAKE_SOURCE_DIR}/main.cpp
+    ${CMAKE_SOURCE_DIR}/texture.cpp
+    ${CMAKE_SOURCE_DIR}/versions.cpp
+    ${IMGUI_SOURCES}
 )
 
 target_link_libraries(
