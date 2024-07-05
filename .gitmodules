@@ -3,10 +3,7 @@
 	url = https://github.com/curl/curl.git
 [submodule "submodules/glfw"]
 	path = submodules/glfw
-	url = https://github.com/TheCherno/glfw.git
+	url = https://github.com/glfw/glfw.git
 [submodule "submodules/imgui"]
 	path = submodules/imgui
 	url = https://github.com/ocornut/imgui.git
-[submodule "bin/Debug/submodules/glfw"]
-	path = bin/Debug/submodules/glfw
-	url = https://github.com/TheCherno/glfw.git
