@@ -11,6 +11,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+set(BUILD_CURL_EXE OFF)
+set(CURL_USE_SCHANNEL ON)
 
 find_package(OpenGL)
 
@@ -35,7 +37,10 @@ set(IMGUI_SOURCES
 
 add_executable(
     retro_installer WIN32
+    ${CMAKE_SOURCE_DIR}/download_file.cpp
     ${CMAKE_SOURCE_DIR}/main.cpp
+    ${CMAKE_SOURCE_DIR}/setup.cpp
+    ${CMAKE_SOURCE_DIR}/steam_auth.cpp
     ${CMAKE_SOURCE_DIR}/texture.cpp
     ${CMAKE_SOURCE_DIR}/versions.cpp
     ${IMGUI_SOURCES}
@@ -54,3 +59,5 @@ target_include_directories(
             ${CMAKE_SOURCE_DIR}/submodules/glfw/include
             ${CMAKE_SOURCE_DIR}/submodules/imgui
 )
+
+target_compile_definitions(retro_installer PRIVATE NOMINMAX)

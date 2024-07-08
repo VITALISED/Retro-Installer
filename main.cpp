@@ -25,7 +25,9 @@
 
 #include "fonts.h"
 #include "images.h"
+#include "setup.h"
 #include "state.h"
+#include "steam_auth.h"
 #include "texture.h"
 #include "versions.h"
 
@@ -44,6 +46,11 @@ static void glfw_error_callback(int error, const char *description)
 // Main code
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
 {
+#ifdef _DEBUG
+    AllocConsole();
+    SetConsoleTitle("Debug");
+    freopen("CONOUT$", "wt", stdout);
+#endif
     curl_global_init(CURL_GLOBAL_DEFAULT);
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -246,6 +253,12 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
             {
             case EState_Picker:
                 VersionPicker_Frame(nms_font_medium, (ImTextureID)initial_release_image_texture, (ImTextureID)pathfinder_image_texture, (ImTextureID)foundations_image_texture, (ImTextureID)atlas_rises_image_texture, ImVec2(pathfinder_image_width, pathfinder_image_height));
+                break;
+            case EState_Setup:
+                Setup_Frame(nms_font_medium, nms_font);
+                break;
+            case EState_SteamAuth:
+                SteamAuth_Frame(nms_font_medium, nms_font);
                 break;
             default:
                 break;
