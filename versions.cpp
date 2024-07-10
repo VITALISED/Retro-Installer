@@ -189,15 +189,19 @@ void VersionPicker_Frame(ImFont *nms_medium_font, ImTextureID initial_release_im
     {
         std::wstring location = GetSelectFolder();
         std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-        InstallerState::Get()->SetDownloadLocation(const_cast<char *>(conv.to_bytes(location).c_str()));
+
+        if (!location.empty())
+        {
+            InstallerState::Get()->SetDownloadLocation(const_cast<char *>(conv.to_bytes(location).c_str()));
+        }
     }
 
     ImGui::EndChild();
+
+    ImGui::PopFont();
 
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 60);
     std::string prefix_text = std::format("Will be installed to: {}", InstallerState::Get()->GetDownloadLocation());
     ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize(prefix_text.c_str()).x) * 0.5);
     ImGui::Text(prefix_text.c_str());
-
-    ImGui::PopFont();
 }

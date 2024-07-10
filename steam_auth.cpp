@@ -3,19 +3,24 @@
 
 char username[255]{};
 char password[255]{};
+char steamguard[255]{};
 
 std::string childOutput = "";
 std::string currentVersion = std::string("No Man's Sky");
 bool completedADownload = false;
+ChildProcessHandler *processHandler = NULL;
+bool startedButtonPressed = false;
 
 void DownloadDepot(std::string command)
 {
-    ChildProcessHandler processHandler(command);
+    processHandler = new ChildProcessHandler(command);
     do
     {
-        childOutput = processHandler.ReadFromChildProcess();
+        childOutput = processHandler->ReadFromChildProcess();
         std::printf(childOutput.c_str(), "\n");
-    } while (childOutput.find("Disconnected from Steam") == std::string::npos);
+    } while (!childOutput.contains("Disconnected from Steam"));
+
+    delete processHandler;
 
     completedADownload = true;
 }
@@ -23,14 +28,14 @@ void DownloadDepot(std::string command)
 DWORD WINAPI ChildProcessThread(LPVOID lpReserved)
 {
     UNREFERENCED_PARAMETER(lpReserved);
-
+    startedButtonPressed = true;
     std::string lsCmd = std::string();
 
     if (InstallerState::Get()->DoInitial())
     {
         printf("Downloading Initial\n");
         currentVersion = "Initial Release";
-        lsCmd = "DepotDownloader.exe -app 275850 -depot 275851 -manifest 3961348687487426672";
+        lsCmd = "DepotDownloader.exe -app 275850 -depot 275851 -manifest 7324577403707723494";
         lsCmd.append(std::format(" -dir \"{}\"", std::filesystem::path(InstallerState::Get()->GetDownloadLocation()).append("Release").string().c_str()));
         lsCmd.append(std::format(" -username {} -password {} -remember-password", username, password));
 
@@ -41,7 +46,7 @@ DWORD WINAPI ChildProcessThread(LPVOID lpReserved)
     {
         printf("Downloading Foundations\n");
         currentVersion = "Foundations";
-        lsCmd = "DepotDownloader.exe -app 275850 -depot 275852 -manifest 3961348687487426672";
+        lsCmd = "DepotDownloader.exe -app 275850 -depot 275851 -manifest 2123008115602074603";
         lsCmd.append(std::format(" -dir \"{}\"", std::filesystem::path(InstallerState::Get()->GetDownloadLocation()).append("Foundations").string().c_str()));
         lsCmd.append(std::format(" -username {} -password {} -remember-password", username, password));
 
@@ -52,7 +57,7 @@ DWORD WINAPI ChildProcessThread(LPVOID lpReserved)
     {
         printf("Downloading Path Finder\n");
         currentVersion = "Path Finder";
-        lsCmd = "DepotDownloader.exe -app 275850 -depot 275853 -manifest 3961348687487426672";
+        lsCmd = "DepotDownloader.exe -app 275850 -depot 275851 -manifest 3749359456608052294";
         lsCmd.append(std::format(" -dir \"{}\"", std::filesystem::path(InstallerState::Get()->GetDownloadLocation()).append("Path Finder").string().c_str()));
         lsCmd.append(std::format(" -username {} -password {} -remember-password", username, password));
 
@@ -63,7 +68,7 @@ DWORD WINAPI ChildProcessThread(LPVOID lpReserved)
     {
         printf("Downloading Atlas Rises\n");
         currentVersion = "Atlas Rises";
-        lsCmd = "DepotDownloader.exe -app 275850 -depot 275854 -manifest 3961348687487426672";
+        lsCmd = "DepotDownloader.exe -app 275850 -depot 275851 -manifest 8262658978126728861";
         lsCmd.append(std::format(" -dir \"{}\"", std::filesystem::path(InstallerState::Get()->GetDownloadLocation()).append("Atlas Rises").string().c_str()));
         lsCmd.append(std::format(" -username {} -password {} -remember-password", username, password));
 
@@ -77,7 +82,7 @@ DWORD WINAPI ChildProcessThread(LPVOID lpReserved)
 
 void SteamAuth_Frame(ImFont *nms_font_medium, ImFont *nms_font)
 {
-    if (childOutput.empty())
+    if (childOutput.empty() && (!completedADownload || startedButtonPressed))
     {
         ImGuiStyle &style = ImGui::GetStyle();
         ImGui::PushFont(nms_font);
@@ -97,7 +102,7 @@ void SteamAuth_Frame(ImFont *nms_font_medium, ImFont *nms_font)
         ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize(notice1).x) * 0.5);
         ImGui::Text(notice1);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
-        const char *notice2 = "We need this information to download No Man's Sky from Steam. You might need to authorize with Steam guard on your phone.";
+        const char *notice2 = "We need this information to download No Man's Sky from Steam. You might need to authorize with Steam Guard.";
         ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize(notice2).x) * 0.5);
         ImGui::Text(notice2);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
@@ -134,6 +139,19 @@ void SteamAuth_Frame(ImFont *nms_font_medium, ImFont *nms_font)
         const char *downloading_subtext = childOutput.c_str();
         ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize(downloading_subtext).x) * 0.5);
         ImGui::Text(downloading_subtext);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10);
+        ImGui::SetCursorPosX((ImGui::GetWindowSize().x - 150) * 0.5);
+        ImGui::SetNextItemWidth(150.0f);
+
+        if (childOutput.contains("Please enter"))
+        {
+            ImGui::InputText("####", steamguard, sizeof(steamguard));
+            ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize("Enter").x - 20) * 0.5);
+            if (ImGui::Button("Enter"))
+            {
+                processHandler->WriteToChildProcess(steamguard);
+            }
+        }
 
         ImGui::PopFont();
     }

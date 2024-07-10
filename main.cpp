@@ -25,6 +25,7 @@
 
 #include "fonts.h"
 #include "images.h"
+#include "patches.h"
 #include "setup.h"
 #include "state.h"
 #include "steam_auth.h"
@@ -259,6 +260,9 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
                 break;
             case EState_SteamAuth:
                 SteamAuth_Frame(nms_font_medium, nms_font);
+                break;
+            case EState_Patches:
+                Patches_Frame(nms_font_medium, nms_font);
                 break;
             default:
                 break;

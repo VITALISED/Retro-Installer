@@ -8,6 +8,7 @@ enum eState
     EState_Picker,
     EState_Setup,
     EState_SteamAuth,
+    EState_Patches,
 };
 
 class InstallerState

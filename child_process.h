@@ -33,7 +33,8 @@ public:
     {
         char buffer[4096];
         DWORD dwBytesRead;
-        ReadFile(hChildStdoutRd_, buffer, sizeof(buffer), &dwBytesRead, NULL);
+        if (!ReadFile(hChildStdoutRd_, buffer, sizeof(buffer) - 1, &dwBytesRead, NULL) || dwBytesRead == 0)
+            return std::string();
         buffer[dwBytesRead] = '\0';
         return std::string(buffer);
     }

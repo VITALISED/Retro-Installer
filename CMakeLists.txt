@@ -39,6 +39,7 @@ add_executable(
     retro_installer WIN32
     ${CMAKE_SOURCE_DIR}/download_file.cpp
     ${CMAKE_SOURCE_DIR}/main.cpp
+    ${CMAKE_SOURCE_DIR}/patches.cpp
     ${CMAKE_SOURCE_DIR}/setup.cpp
     ${CMAKE_SOURCE_DIR}/steam_auth.cpp
     ${CMAKE_SOURCE_DIR}/texture.cpp
